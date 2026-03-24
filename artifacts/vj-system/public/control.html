@@ -247,7 +247,8 @@ function connectWS() {
     wsReconnectTimeout = null;
   }
 
-  var url = 'ws://' + location.hostname + ':8080';
+  var wsProto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+  var url = wsProto + location.hostname + ':8080';
   ws = new WebSocket(url);
 
   ws.onopen = function () {

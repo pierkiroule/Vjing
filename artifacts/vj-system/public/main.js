@@ -41,7 +41,8 @@ function initWS() {
     wsReconnectTimeout = null;
   }
 
-  var wsUrl = 'ws://' + location.hostname + ':8080';
+  var wsProto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+  var wsUrl = wsProto + location.hostname + ':8080';
   ws = new WebSocket(wsUrl);
 
   ws.onopen = function () {};

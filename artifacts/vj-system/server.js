@@ -35,6 +35,31 @@ const wsServer = new WebSocket.Server({ port: WS_PORT });
 
 const clients = new Set();
 
+const VALID_SCENES = new Set(['audioReactive', 'videoDisplay', 'liveCamera']);
+const VALID_SOURCES = new Set(['file', 'webcam', 'ipcam']);
+const VALID_MODES = new Set(['calm', 'chaos']);
+
+let dirty = false;
+
+function applyMessage(msg) {
+  if (typeof msg.scene === 'string' && VALID_SCENES.has(msg.scene)) {
+    if (state.scene !== msg.scene) { state.scene = msg.scene; dirty = true; }
+  }
+  if (typeof msg.videoSource === 'string' && VALID_SOURCES.has(msg.videoSource)) {
+    if (state.videoSource !== msg.videoSource) { state.videoSource = msg.videoSource; dirty = true; }
+  }
+  if (typeof msg.intensity === 'number' && isFinite(msg.intensity)) {
+    const v = Math.max(0, Math.min(1, msg.intensity));
+    if (state.intensity !== v) { state.intensity = v; dirty = true; }
+  }
+  if (typeof msg.mode === 'string' && VALID_MODES.has(msg.mode)) {
+    if (state.mode !== msg.mode) { state.mode = msg.mode; dirty = true; }
+  }
+  if (typeof msg.ipcamUrl === 'string') {
+    if (state.ipcamUrl !== msg.ipcamUrl) { state.ipcamUrl = msg.ipcamUrl; dirty = true; }
+  }
+}
+
 wsServer.on('connection', (ws) => {
   clients.add(ws);
   ws.send(JSON.stringify({ type: 'state', data: state }));
@@ -46,12 +71,7 @@ wsServer.on('connection', (ws) => {
     } catch (e) {
       return;
     }
-
-    if (msg.scene !== undefined) state.scene = msg.scene;
-    if (msg.videoSource !== undefined) state.videoSource = msg.videoSource;
-    if (msg.intensity !== undefined) state.intensity = msg.intensity;
-    if (msg.mode !== undefined) state.mode = msg.mode;
-    if (msg.ipcamUrl !== undefined) state.ipcamUrl = msg.ipcamUrl;
+    applyMessage(msg);
   });
 
   ws.on('close', () => {
@@ -64,6 +84,8 @@ wsServer.on('connection', (ws) => {
 });
 
 setInterval(() => {
+  if (!dirty || clients.size === 0) return;
+  dirty = false;
   const payload = JSON.stringify({ type: 'state', data: state });
   for (const ws of clients) {
     if (ws.readyState === WebSocket.OPEN) {
