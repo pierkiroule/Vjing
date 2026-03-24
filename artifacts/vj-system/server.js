@@ -13,7 +13,8 @@ const state = {
   scene: 'audioReactive',
   videoSource: 'file',
   intensity: 0.5,
-  mode: 'calm'
+  mode: 'calm',
+  ipcamUrl: ''
 };
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -50,6 +51,7 @@ wsServer.on('connection', (ws) => {
     if (msg.videoSource !== undefined) state.videoSource = msg.videoSource;
     if (msg.intensity !== undefined) state.intensity = msg.intensity;
     if (msg.mode !== undefined) state.mode = msg.mode;
+    if (msg.ipcamUrl !== undefined) state.ipcamUrl = msg.ipcamUrl;
   });
 
   ws.on('close', () => {

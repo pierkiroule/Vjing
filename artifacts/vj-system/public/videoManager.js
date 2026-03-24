@@ -24,6 +24,7 @@ const VideoManager = (function () {
 
   function useVideoFile(url) {
     stopCurrent();
+    if (!url) return;
     video.src = url;
     video.play().catch(function () {});
   }

@@ -237,7 +237,8 @@ var localState = {
   scene: 'audioReactive',
   videoSource: 'file',
   intensity: 0.5,
-  mode: 'calm'
+  mode: 'calm',
+  ipcamUrl: ''
 };
 
 function connectWS() {
@@ -284,6 +285,10 @@ function syncFromServer(data) {
   localState.videoSource = data.videoSource || localState.videoSource;
   localState.intensity = typeof data.intensity === 'number' ? data.intensity : localState.intensity;
   localState.mode = data.mode || localState.mode;
+  if (typeof data.ipcamUrl === 'string' && data.ipcamUrl) {
+    localState.ipcamUrl = data.ipcamUrl;
+    document.getElementById('ipcam-url').value = data.ipcamUrl;
+  }
   updateUI();
 }
 

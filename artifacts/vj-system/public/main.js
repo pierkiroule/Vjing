@@ -2,7 +2,8 @@ var state = {
   scene: 'audioReactive',
   videoSource: 'file',
   intensity: 0.5,
-  mode: 'calm'
+  mode: 'calm',
+  ipcamUrl: ''
 };
 
 var renderer = null;
@@ -68,17 +69,22 @@ var lastVideoSource = null;
 function applyState(newState) {
   var prevScene = state.scene;
   var prevVideoSource = state.videoSource;
+  var prevIpcamUrl = state.ipcamUrl;
 
   state.scene = newState.scene || state.scene;
   state.videoSource = newState.videoSource || state.videoSource;
   state.intensity = typeof newState.intensity === 'number' ? newState.intensity : state.intensity;
   state.mode = newState.mode || state.mode;
+  if (typeof newState.ipcamUrl === 'string') state.ipcamUrl = newState.ipcamUrl;
 
   if (state.scene !== prevScene) {
     SceneManager.loadScene(state.scene);
   }
 
-  if (state.videoSource !== prevVideoSource) {
+  var videoSourceChanged = state.videoSource !== prevVideoSource;
+  var ipcamUrlChanged = state.videoSource === 'ipcam' && state.ipcamUrl !== prevIpcamUrl && state.ipcamUrl !== '';
+
+  if (videoSourceChanged || ipcamUrlChanged) {
     applyVideoSource(state.videoSource);
   }
 }
@@ -87,9 +93,8 @@ function applyVideoSource(source) {
   if (source === 'webcam') {
     VideoManager.useWebcam();
   } else if (source === 'ipcam') {
-    var url = prompt('Enter IP cam URL (e.g. http://192.168.1.x/video):') || '';
-    if (url) {
-      VideoManager.useIPCam(url);
+    if (state.ipcamUrl) {
+      VideoManager.useIPCam(state.ipcamUrl);
     }
   } else {
     VideoManager.useVideoFile('');
