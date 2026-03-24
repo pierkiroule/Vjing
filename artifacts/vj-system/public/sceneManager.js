@@ -6,7 +6,10 @@ var SceneManager = (function () {
   var sceneMap = {
     audioReactive: audioReactiveScene,
     videoDisplay: videoDisplayScene,
-    liveCamera: liveCameraScene
+    liveCamera: liveCameraScene,
+    particleField: particleFieldScene,
+    tunnel: tunnelScene,
+    gridWave: gridWaveScene
   };
 
   function setContext(context) {

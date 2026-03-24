@@ -103,6 +103,24 @@
       background: #0d001a;
     }
 
+    .btn.active.scene-particles {
+      border-color: #ff8800;
+      color: #ff8800;
+      background: #1a0800;
+    }
+
+    .btn.active.scene-tunnel {
+      border-color: #ffee00;
+      color: #ffee00;
+      background: #1a1600;
+    }
+
+    .btn.active.scene-grid {
+      border-color: #00ffee;
+      color: #00ffee;
+      background: #001a1a;
+    }
+
     .intensity-wrap {
       flex-shrink: 0;
     }
@@ -195,6 +213,11 @@
     <button class="btn" id="btn-audio" onclick="setScene('audioReactive')">Audio<br>Reactive</button>
     <button class="btn" id="btn-video" onclick="setScene('videoDisplay')">Video<br>Display</button>
     <button class="btn" id="btn-cam" onclick="setScene('liveCamera')">Live<br>Camera</button>
+  </div>
+  <div class="btn-row">
+    <button class="btn" id="btn-particles" onclick="setScene('particleField')">Particle<br>Field</button>
+    <button class="btn" id="btn-tunnel" onclick="setScene('tunnel')">Tunnel</button>
+    <button class="btn" id="btn-grid" onclick="setScene('gridWave')">Grid<br>Wave</button>
   </div>
 
   <div class="section-label">Mode</div>
@@ -299,6 +322,9 @@ function updateUI() {
   document.getElementById('btn-audio').className = 'btn' + (s.scene === 'audioReactive' ? ' active' : '');
   document.getElementById('btn-video').className = 'btn' + (s.scene === 'videoDisplay' ? ' active scene-video' : '');
   document.getElementById('btn-cam').className = 'btn' + (s.scene === 'liveCamera' ? ' active scene-cam' : '');
+  document.getElementById('btn-particles').className = 'btn' + (s.scene === 'particleField' ? ' active scene-particles' : '');
+  document.getElementById('btn-tunnel').className = 'btn' + (s.scene === 'tunnel' ? ' active scene-tunnel' : '');
+  document.getElementById('btn-grid').className = 'btn' + (s.scene === 'gridWave' ? ' active scene-grid' : '');
 
   document.getElementById('btn-calm').className = 'btn' + (s.mode === 'calm' ? ' active' : '');
   document.getElementById('btn-chaos').className = 'btn' + (s.mode === 'chaos' ? ' active chaos' : '');
