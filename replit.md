@@ -94,3 +94,39 @@ Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHea
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+
+## VJ System (`artifacts/vj-system`)
+
+Standalone real-time audiovisual performance system. Not part of the pnpm monorepo — has its own `node_modules` and is run directly with `node server.js`.
+
+- **Stack**: Node.js, Express 4, `ws` WebSocket library, Three.js (CDN), vanilla JS
+- **HTTP server**: Express on `process.env.PORT` (default 3000) — serves static files from `public/`
+- **WebSocket server**: `ws` on port 8080 — broadcasts shared state every 30ms
+- **Routes**: `/` → visual player, `/control` → mobile controller
+- **Workflow**: "VJ System" — `cd artifacts/vj-system && node server.js`
+- **Offline export**: Copy `artifacts/vj-system/`, run `npm install && node server.js`
+
+### File layout
+
+```
+artifacts/vj-system/
+├── server.js                 # Express + WebSocket server
+├── package.json              # Only express + ws
+└── public/
+    ├── index.html            # Three.js visual player
+    ├── control.html          # Mobile controller UI
+    ├── main.js               # Renderer init, WS client, animation loop
+    ├── sceneManager.js       # loadScene / update / dispose
+    ├── audioManager.js       # Web Audio API mic input
+    ├── videoManager.js       # Shared video element (file/webcam/ipcam)
+    └── scenes/
+        ├── audioReactiveScene.js   # Wireframe sphere reacting to mic
+        ├── videoDisplayScene.js    # Fullscreen video plane
+        └── liveCameraScene.js      # Webcam/IP cam with audio scaling
+```
+
+### Shared state shape
+
+```json
+{ "scene": "audioReactive|videoDisplay|liveCamera", "videoSource": "file|webcam|ipcam", "intensity": 0.5, "mode": "calm|chaos" }
+```

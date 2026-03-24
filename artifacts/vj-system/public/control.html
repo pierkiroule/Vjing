@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>VJ Controller</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0a0a0a;
+      color: #fff;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 12px;
+      gap: 10px;
+    }
+
+    #status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #555;
+      padding: 0 2px;
+      flex-shrink: 0;
+    }
+
+    #ws-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #333;
+      display: inline-block;
+      margin-right: 6px;
+      transition: background 0.3s;
+    }
+
+    #ws-dot.connected { background: #00ff88; }
+    #ws-dot.error { background: #ff3333; }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #444;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      flex-shrink: 0;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 0;
+      height: 60px;
+      border-radius: 10px;
+      border: 2px solid #222;
+      background: #111;
+      color: #888;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .btn.active {
+      border-color: #00ff88;
+      color: #00ff88;
+      background: #001a0d;
+    }
+
+    .btn.active.chaos {
+      border-color: #ff4400;
+      color: #ff4400;
+      background: #1a0500;
+    }
+
+    .btn.active.scene-video {
+      border-color: #0088ff;
+      color: #0088ff;
+      background: #000d1a;
+    }
+
+    .btn.active.scene-cam {
+      border-color: #cc00ff;
+      color: #cc00ff;
+      background: #0d001a;
+    }
+
+    .intensity-wrap {
+      flex-shrink: 0;
+    }
+
+    .intensity-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .intensity-label span { font-size: 11px; color: #555; }
+    .intensity-label strong { font-size: 13px; color: #00ff88; }
+
+    #intensity-slider {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      border-radius: 4px;
+      background: #222;
+      outline: none;
+      cursor: pointer;
+    }
+
+    #intensity-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #00ff88;
+      cursor: pointer;
+    }
+
+    #intensity-slider::-moz-range-thumb {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #00ff88;
+      cursor: pointer;
+      border: none;
+    }
+
+    .spacer { flex: 1; }
+
+    #ipcam-input-wrap {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    #ipcam-input-wrap.visible { display: flex; }
+
+    #ipcam-url {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid #333;
+      background: #111;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+
+    #ipcam-url:focus { border-color: #cc00ff; }
+
+    #ipcam-apply {
+      height: 44px;
+      border-radius: 8px;
+      border: none;
+      background: #cc00ff;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <div id="status-bar">
+    <div><span id="ws-dot"></span><span id="ws-label">Connecting...</span></div>
+    <div id="current-state-label">—</div>
+  </div>
+
+  <div class="section-label">Scene</div>
+  <div class="btn-row">
+    <button class="btn" id="btn-audio" onclick="setScene('audioReactive')">Audio<br>Reactive</button>
+    <button class="btn" id="btn-video" onclick="setScene('videoDisplay')">Video<br>Display</button>
+    <button class="btn" id="btn-cam" onclick="setScene('liveCamera')">Live<br>Camera</button>
+  </div>
+
+  <div class="section-label">Mode</div>
+  <div class="btn-row">
+    <button class="btn" id="btn-calm" onclick="setMode('calm')">Calm</button>
+    <button class="btn" id="btn-chaos" onclick="setMode('chaos')">Chaos</button>
+  </div>
+
+  <div class="section-label">Video Source</div>
+  <div class="btn-row">
+    <button class="btn" id="btn-file" onclick="setSource('file')">File</button>
+    <button class="btn" id="btn-webcam" onclick="setSource('webcam')">Webcam</button>
+    <button class="btn" id="btn-ipcam" onclick="setSource('ipcam')">IP Cam</button>
+  </div>
+
+  <div id="ipcam-input-wrap">
+    <input type="text" id="ipcam-url" placeholder="http://192.168.1.x/video" />
+    <button id="ipcam-apply" onclick="applyIPCam()">Apply IP Cam</button>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="section-label">Intensity</div>
+  <div class="intensity-wrap">
+    <div class="intensity-label">
+      <span>0</span>
+      <strong id="intensity-val">0.50</strong>
+      <span>1</span>
+    </div>
+    <input type="range" id="intensity-slider" min="0" max="1" step="0.01" value="0.5"
+           oninput="setIntensity(this.value)" />
+  </div>
+
+</div>
+
+<script>
+var ws = null;
+var wsReconnectTimeout = null;
+var localState = {
+  scene: 'audioReactive',
+  videoSource: 'file',
+  intensity: 0.5,
+  mode: 'calm'
+};
+
+function connectWS() {
+  if (wsReconnectTimeout) {
+    clearTimeout(wsReconnectTimeout);
+    wsReconnectTimeout = null;
+  }
+
+  var url = 'ws://' + location.hostname + ':8080';
+  ws = new WebSocket(url);
+
+  ws.onopen = function () {
+    setDot('connected');
+    document.getElementById('ws-label').textContent = 'Connected';
+  };
+
+  ws.onmessage = function (ev) {
+    try {
+      var msg = JSON.parse(ev.data);
+      if (msg.type === 'state') {
+        syncFromServer(msg.data);
+      }
+    } catch (e) {}
+  };
+
+  ws.onclose = function () {
+    setDot('error');
+    document.getElementById('ws-label').textContent = 'Reconnecting...';
+    wsReconnectTimeout = setTimeout(connectWS, 2000);
+  };
+
+  ws.onerror = function () {
+    try { ws.close(); } catch (e) {}
+  };
+}
+
+function setDot(cls) {
+  var dot = document.getElementById('ws-dot');
+  dot.className = cls;
+}
+
+function syncFromServer(data) {
+  localState.scene = data.scene || localState.scene;
+  localState.videoSource = data.videoSource || localState.videoSource;
+  localState.intensity = typeof data.intensity === 'number' ? data.intensity : localState.intensity;
+  localState.mode = data.mode || localState.mode;
+  updateUI();
+}
+
+function updateUI() {
+  var s = localState;
+
+  document.getElementById('btn-audio').className = 'btn' + (s.scene === 'audioReactive' ? ' active' : '');
+  document.getElementById('btn-video').className = 'btn' + (s.scene === 'videoDisplay' ? ' active scene-video' : '');
+  document.getElementById('btn-cam').className = 'btn' + (s.scene === 'liveCamera' ? ' active scene-cam' : '');
+
+  document.getElementById('btn-calm').className = 'btn' + (s.mode === 'calm' ? ' active' : '');
+  document.getElementById('btn-chaos').className = 'btn' + (s.mode === 'chaos' ? ' active chaos' : '');
+
+  document.getElementById('btn-file').className = 'btn' + (s.videoSource === 'file' ? ' active' : '');
+  document.getElementById('btn-webcam').className = 'btn' + (s.videoSource === 'webcam' ? ' active' : '');
+  document.getElementById('btn-ipcam').className = 'btn' + (s.videoSource === 'ipcam' ? ' active scene-cam' : '');
+
+  document.getElementById('intensity-slider').value = s.intensity;
+  document.getElementById('intensity-val').textContent = s.intensity.toFixed(2);
+
+  document.getElementById('ipcam-input-wrap').className = s.videoSource === 'ipcam' ? 'visible' : '';
+
+  document.getElementById('current-state-label').textContent =
+    s.scene + ' / ' + s.mode + ' / ' + s.videoSource;
+}
+
+function send(obj) {
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify(obj));
+  }
+}
+
+function setScene(name) {
+  localState.scene = name;
+  updateUI();
+  send({ scene: name });
+}
+
+function setMode(name) {
+  localState.mode = name;
+  updateUI();
+  send({ mode: name });
+}
+
+function setSource(name) {
+  localState.videoSource = name;
+  updateUI();
+  send({ videoSource: name });
+}
+
+function setIntensity(val) {
+  var v = parseFloat(val);
+  localState.intensity = v;
+  document.getElementById('intensity-val').textContent = v.toFixed(2);
+  send({ intensity: v });
+}
+
+function applyIPCam() {
+  var url = document.getElementById('ipcam-url').value.trim();
+  if (url) {
+    send({ videoSource: 'ipcam', ipcamUrl: url });
+    localState.videoSource = 'ipcam';
+    updateUI();
+  }
+}
+
+connectWS();
+updateUI();
+</script>
+</body>
+</html>
