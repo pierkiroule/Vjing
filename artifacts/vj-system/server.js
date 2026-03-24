@@ -48,9 +48,8 @@ function applyMessage(msg) {
   if (typeof msg.videoSource === 'string' && VALID_SOURCES.has(msg.videoSource)) {
     if (state.videoSource !== msg.videoSource) { state.videoSource = msg.videoSource; dirty = true; }
   }
-  if (typeof msg.intensity === 'number' && isFinite(msg.intensity)) {
-    const v = Math.max(0, Math.min(1, msg.intensity));
-    if (state.intensity !== v) { state.intensity = v; dirty = true; }
+  if (typeof msg.intensity === 'number' && isFinite(msg.intensity) && msg.intensity >= 0 && msg.intensity <= 1) {
+    if (state.intensity !== msg.intensity) { state.intensity = msg.intensity; dirty = true; }
   }
   if (typeof msg.mode === 'string' && VALID_MODES.has(msg.mode)) {
     if (state.mode !== msg.mode) { state.mode = msg.mode; dirty = true; }
