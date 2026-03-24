@@ -1,3 +1,11 @@
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { GlitchPass } from 'three/addons/postprocessing/GlitchPass.js';
+
+window.THREE = THREE;
+
 var state = {
   scene: 'audioReactive',
   videoSource: 'file',
@@ -12,6 +20,9 @@ var camera = null;
 var lastTime = 0;
 var ws = null;
 var wsReconnectTimeout = null;
+var composer = null;
+var bloom = null;
+var glitch = null;
 
 function initRenderer() {
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -27,12 +38,21 @@ function initRenderer() {
   camera.position.set(0, 0, 3);
 
   window.addEventListener('resize', onResize);
+
+  composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.5, 0.4, 0.8);
+  composer.addPass(bloom);
+  glitch = new GlitchPass();
+  glitch.enabled = false;
+  composer.addPass(glitch);
 }
 
 function onResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  if (composer) composer.setSize(window.innerWidth, window.innerHeight);
 }
 
 function initWS() {
@@ -110,7 +130,9 @@ function animate(now) {
   lastTime = now;
 
   SceneManager.update(dt, state);
-  renderer.render(scene, camera);
+  bloom.strength = 0.3 + state.intensity * 1.5;
+  glitch.enabled = (state.mode === 'chaos');
+  composer.render();
 }
 
 window.addEventListener('load', function () {

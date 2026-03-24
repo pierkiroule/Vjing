@@ -32,8 +32,6 @@
 <body>
   <div id="hud">VJ PLAYER — /control to open controller</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-
   <script src="audioManager.js"></script>
   <script src="videoManager.js"></script>
   <script src="scenes/audioReactiveScene.js"></script>
@@ -43,6 +41,15 @@
   <script src="scenes/tunnelScene.js"></script>
   <script src="scenes/gridWaveScene.js"></script>
   <script src="sceneManager.js"></script>
-  <script src="main.js"></script>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="main.js"></script>
 </body>
 </html>
