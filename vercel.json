@@ -11,5 +11,8 @@
       "src": "/(.*)",
       "dest": "artifacts/vj-system/server.js"
     }
-  ]
+  ],
+  "install": {
+    "command": "pnpm install --no-frozen-lockfile"
+  }
 }
