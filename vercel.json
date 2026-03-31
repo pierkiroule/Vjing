@@ -12,5 +12,6 @@
       "dest": "artifacts/vj-system/server.js"
     }
   ],
-  "outputDirectory": "artifacts/vj-system"
+  "outputDirectory": "artifacts/vj-system",
+  "installCommand": "pnpm install --no-frozen-lockfile"
 }
