@@ -14,5 +14,6 @@
   ],
   "install": {
     "command": "pnpm install --no-frozen-lockfile"
-  }
+  },
+  "outputDirectory": "artifacts/vj-system"
 }
