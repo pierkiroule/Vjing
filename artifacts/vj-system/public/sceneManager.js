@@ -9,7 +9,8 @@ var SceneManager = (function () {
     liveCamera: liveCameraScene,
     particleField: particleFieldScene,
     tunnel: tunnelScene,
-    gridWave: gridWaveScene
+    gridWave: gridWaveScene,
+    geometryMorphing: geometryMorphingScene
   };
 
   function setContext(context) {

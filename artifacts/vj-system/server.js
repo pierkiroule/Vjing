@@ -35,7 +35,7 @@ const wsServer = new WebSocket.Server({ port: WS_PORT });
 
 const clients = new Set();
 
-const VALID_SCENES = new Set(['audioReactive', 'videoDisplay', 'liveCamera', 'particleField', 'tunnel', 'gridWave']);
+const VALID_SCENES = new Set(['audioReactive', 'videoDisplay', 'liveCamera', 'particleField', 'tunnel', 'gridWave', 'geometryMorphing']);
 const VALID_SOURCES = new Set(['file', 'webcam', 'ipcam']);
 const VALID_MODES = new Set(['calm', 'chaos']);
 
